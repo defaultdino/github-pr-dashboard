@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { configService } from "../services/config";
 
 interface ConfigDialogProps {
   open: boolean;
@@ -18,10 +19,10 @@ interface ConfigDialogProps {
 
 export const ConfigDialog = ({ open, onOpenChange }: ConfigDialogProps) => {
   const [organization, setOrganization] = useState(
-    localStorage.getItem("github_org") || ""
+    configService.getOrg()
   );
   const [token, setToken] = useState(
-    localStorage.getItem("github_token") || ""
+    configService.getToken()
   );
 
   const handleSave = () => {
@@ -30,8 +31,8 @@ export const ConfigDialog = ({ open, onOpenChange }: ConfigDialogProps) => {
       return;
     }
 
-    localStorage.setItem("github_org", organization);
-    localStorage.setItem("github_token", token);
+    configService.setOrg(organization)
+    configService.setToken(token)
     toast.success("Configuration saved successfully");
     onOpenChange(false);
   };

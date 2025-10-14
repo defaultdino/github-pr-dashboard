@@ -4,16 +4,18 @@ import { PRSection, PR } from "@/components/PRSection";
 import { ConfigDialog } from "@/components/ConfigDialog";
 import { toast } from "sonner";
 import { GitHubService } from "@/services/github";
+import { configService } from "@/services/config";
 
 const Index = () => {
   const [activePRs, setActivePRs] = useState<PR[]>([]);
   const [stalePRs, setStalePRs] = useState<PR[]>([]);
+  const [allRepos, setAllRepos] = useState<string[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
-    const hasConfig = localStorage.getItem("github_org") && localStorage.getItem("github_token");
+    const hasConfig = configService.getOrg() && configService.getToken()
     if (!hasConfig) {
       setShowConfig(true);
     } else {
@@ -22,8 +24,8 @@ const Index = () => {
   }, []);
 
   const loadPRs = async () => {
-    const token = localStorage.getItem("github_token");
-    const org = localStorage.getItem("github_org");
+    const token = configService.getToken()
+    const org = configService.getOrg()
 
     if (!token || !org) {
       toast.error("Please configure GitHub credentials");
@@ -52,8 +54,15 @@ const Index = () => {
         };
       });
 
-      const active = prs.filter(pr => !pr.isStale);
-      const stale = prs.filter(pr => pr.isStale);
+      const uniqueRepos = [...new Set(prs.map(pr => pr.repository))].sort();
+      setAllRepos(uniqueRepos);
+
+      const excludedRepos = new Set(configService.getExcludedRepos());
+
+      const filteredPRs = prs.filter(pr => !excludedRepos.has(pr.repository));
+
+      const active = filteredPRs.filter(pr => !pr.isStale);
+      const stale = filteredPRs.filter(pr => pr.isStale);
 
       setActivePRs(active);
       setStalePRs(stale);
@@ -84,6 +93,8 @@ const Index = () => {
         isRefreshing={isRefreshing}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        allRepositories={allRepos}
+        onFilterChange={loadPRs}
       />
 
       <main className="container mx-auto px-6 py-8 space-y-8">
