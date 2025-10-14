@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Settings, LayoutGrid, LayoutList } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useState } from "react";
 
 interface DashboardHeaderProps {
   onRefresh: () => void;
@@ -11,13 +12,16 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader = ({ onRefresh, onSettings, isRefreshing, viewMode, onViewModeChange }: DashboardHeaderProps) => {
+  const [organization, _] = useState(
+    localStorage.getItem("github_org") || ""
+  );
   return (
     <header className="border-b border-border bg-card">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">PR Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Monitor pull requests across your organization</p>
+            <p className="text-muted-foreground mt-1">{ organization ? "Monitor pull requests across " + organization : "Monitor pull requests across your organization" }</p>
           </div>
 
           <div className="flex items-center gap-3">
