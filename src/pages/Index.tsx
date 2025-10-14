@@ -10,11 +10,11 @@ const Index = () => {
   const [stalePRs, setStalePRs] = useState<PR[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
   useEffect(() => {
     const hasConfig = localStorage.getItem("github_org") && localStorage.getItem("github_token");
     if (!hasConfig) {
-
       setShowConfig(true);
     } else {
       loadPRs();
@@ -82,6 +82,8 @@ const Index = () => {
         onRefresh={handleRefresh}
         onSettings={() => setShowConfig(true)}
         isRefreshing={isRefreshing}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       <main className="container mx-auto px-6 py-8 space-y-8">
@@ -90,6 +92,7 @@ const Index = () => {
           prs={activePRs}
           emptyMessage="No active pull requests found"
           isStale={false}
+          viewMode={viewMode}
         />
 
         <PRSection
@@ -97,6 +100,7 @@ const Index = () => {
           prs={stalePRs}
           emptyMessage="No stale pull requests - great job!"
           isStale={true}
+          viewMode={viewMode}
         />
       </main>
 

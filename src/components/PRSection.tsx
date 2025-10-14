@@ -17,9 +17,10 @@ interface PRSectionProps {
   prs: PR[];
   emptyMessage: string;
   isStale?: boolean;
+  viewMode: 'grid' | 'list';
 }
 
-export const PRSection = ({ title, prs, emptyMessage, isStale = false }: PRSectionProps) => {
+export const PRSection = ({ title, prs, emptyMessage, isStale = false, viewMode }: PRSectionProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
@@ -51,7 +52,7 @@ export const PRSection = ({ title, prs, emptyMessage, isStale = false }: PRSecti
             </div>
           ) : (
             <>
-              <div className="space-y-2">
+              <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-2'}>
                 {displayedPRs.map((pr) => (
                   <PRCard key={pr.id} {...pr} isStale={isStale} />
                 ))}

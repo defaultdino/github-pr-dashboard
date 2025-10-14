@@ -1,14 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Settings } from "lucide-react";
+import { RefreshCw, Settings, LayoutGrid, LayoutList } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface DashboardHeaderProps {
   onRefresh: () => void;
   onSettings: () => void;
   isRefreshing: boolean;
+  viewMode: 'grid' | 'list';
+  onViewModeChange: (mode: 'grid' | 'list') => void;
 }
 
-export const DashboardHeader = ({ onRefresh, onSettings, isRefreshing }: DashboardHeaderProps) => {
+export const DashboardHeader = ({ onRefresh, onSettings, isRefreshing, viewMode, onViewModeChange }: DashboardHeaderProps) => {
   return (
     <header className="border-b border-border bg-card">
       <div className="container mx-auto px-6 py-4">
@@ -20,6 +22,24 @@ export const DashboardHeader = ({ onRefresh, onSettings, isRefreshing }: Dashboa
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <div className="flex items-center gap-1 border border-border rounded-md p-1">
+              <Button
+                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                size="icon"
+                onClick={() => onViewModeChange('list')}
+                className="h-7 w-7"
+              >
+                <LayoutList className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                size="icon"
+                onClick={() => onViewModeChange('grid')}
+                className="h-7 w-7"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+            </div>
             <Button
               variant="outline"
               size="sm"
