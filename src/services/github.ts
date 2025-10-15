@@ -7,6 +7,7 @@ export interface GitHubPR {
   html_url: string;
   created_at: string;
   repository_url: string;
+  draft: boolean;
 }
 
 export interface Repository {

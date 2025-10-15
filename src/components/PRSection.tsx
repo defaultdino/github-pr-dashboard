@@ -10,6 +10,7 @@ export interface PR {
   createdAt: Date;
   url: string;
   isStale: boolean;
+  isDraft: boolean;
 }
 
 interface PRSectionProps {

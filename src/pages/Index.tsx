@@ -51,6 +51,7 @@ const Index = () => {
           createdAt,
           url: pr.html_url,
           isStale: createdAt <= sevenDaysAgo,
+          isDraft: pr.draft,
         };
       });
 
