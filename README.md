@@ -6,5 +6,5 @@ This is a neat GitHub PR Dashboard that is easy to use and looks great. Just put
 
 The dashboard can be viewed in either a grid view or a list view, you can toggle between light and dark mode, and filter out any repos in your organization that you are not interested in seeing the status of PR's.
 
-<img href="./assets/dark.png"/>
-<img href="./assets/light.png"/>
+<img src="./assets/dark.png"/>
+<img src="./assets/light.png"/>
