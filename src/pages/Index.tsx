@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { PRSection, PR } from "@/components/PRSection";
 import { ConfigDialog } from "@/components/ConfigDialog";
 import { toast } from "sonner";
 import { GitHubService } from "@/services/github";
-import { configService } from "@/services/config";
+import { useConfig } from "@/context/configContext";
 
 const Index = () => {
+  const { config, hasValidConfig } = useConfig();
   const [activePRs, setActivePRs] = useState<PR[]>([]);
   const [stalePRs, setStalePRs] = useState<PR[]>([]);
   const [allRepos, setAllRepos] = useState<string[]>([]);
@@ -14,18 +15,8 @@ const Index = () => {
   const [showConfig, setShowConfig] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  useEffect(() => {
-    const hasConfig = configService.getOrg() && configService.getToken()
-    if (!hasConfig) {
-      setShowConfig(true);
-    } else {
-      loadPRs();
-    }
-  }, []);
-
-  const loadPRs = async () => {
-    const token = configService.getToken()
-    const org = configService.getOrg()
+  const loadPRs = useCallback(async () => {
+    const { token, org, excludedRepos = [] } = config;
 
     if (!token || !org) {
       toast.error("Please configure GitHub credentials");
@@ -58,9 +49,8 @@ const Index = () => {
       const uniqueRepos = [...new Set(prs.map(pr => pr.repository))].sort();
       setAllRepos(uniqueRepos);
 
-      const excludedRepos = new Set(configService.getExcludedRepos());
-
-      const filteredPRs = prs.filter(pr => !excludedRepos.has(pr.repository));
+      const excludedReposSet = new Set(excludedRepos);
+      const filteredPRs = prs.filter(pr => !excludedReposSet.has(pr.repository));
 
       const active = filteredPRs.filter(pr => !pr.isStale);
       const stale = filteredPRs.filter(pr => pr.isStale);
@@ -71,7 +61,17 @@ const Index = () => {
       toast.error("Failed to fetch PRs. Check your token and organization.");
       console.error(error);
     }
-  };
+  }, [config]);
+
+  useEffect(() => {
+    if (!hasValidConfig) {
+      setShowConfig(true);
+    } else {
+      loadPRs();
+    }
+  }, [hasValidConfig, loadPRs]);
+
+
 
   const handleRefresh = async () => {
     setIsRefreshing(true);

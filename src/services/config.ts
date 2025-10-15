@@ -1,4 +1,4 @@
-interface Config {
+export interface Config {
   token: string;
   org: string;
   excludedRepos: string[];
@@ -42,6 +42,18 @@ export const configService = {
       org: this.getOrg() || undefined,
       excludedRepos: this.getExcludedRepos(),
     };
+  },
+
+  setConfig(config: Partial<Config>): void {
+    if (config.token !== undefined) {
+      this.setToken(config.token);
+    }
+    if (config.org !== undefined) {
+      this.setOrg(config.org);
+    }
+    if (config.excludedRepos !== undefined) {
+      this.setExcludedRepos(config.excludedRepos);
+    }
   },
 
   hasValidConfig(): boolean {

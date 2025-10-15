@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { configService } from "../services/config";
+import { useConfig } from "@/context/configContext";
 
 interface ConfigDialogProps {
   open: boolean;
@@ -18,12 +18,14 @@ interface ConfigDialogProps {
 }
 
 export const ConfigDialog = ({ open, onOpenChange }: ConfigDialogProps) => {
-  const [organization, setOrganization] = useState(
-    configService.getOrg()
-  );
-  const [token, setToken] = useState(
-    configService.getToken()
-  );
+  const { config, setConfig } = useConfig();
+  const [organization, setOrganization] = useState(config.org || "");
+  const [token, setToken] = useState(config.token || "");
+
+  useEffect(() => {
+    setOrganization(config.org || "");
+    setToken(config.token || "");
+  }, [config.org, config.token]);
 
   const handleSave = () => {
     if (!organization || !token) {
@@ -31,10 +33,16 @@ export const ConfigDialog = ({ open, onOpenChange }: ConfigDialogProps) => {
       return;
     }
 
-    configService.setOrg(organization)
-    configService.setToken(token)
+    setConfig({
+      org: organization,
+      token,
+      excludedRepos: config.excludedRepos || []
+    });
+
     toast.success("Configuration saved successfully");
     onOpenChange(false);
+
+    window.location.reload();
   };
 
   return (

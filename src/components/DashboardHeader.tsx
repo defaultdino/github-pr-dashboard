@@ -10,7 +10,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { configService } from "../services/config";
+import { useConfig } from "@/context/configContext";
 
 interface DashboardHeaderProps {
   onRefresh: () => void;
@@ -31,16 +31,14 @@ export const DashboardHeader = ({
   allRepositories,
   onFilterChange
 }: DashboardHeaderProps) => {
-  const [organization, _] = useState(
-    configService.getOrg()
-  );
+  const { config, setConfig } = useConfig();
   const [excludedRepos, setExcludedRepos] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const excluded = configService.getExcludedRepos()
+    const excluded = config.excludedRepos || [];
     setExcludedRepos(new Set(excluded));
-  }, []);
+  }, [config.excludedRepos]);
 
   const toggleRepo = (repo: string) => {
     const newExcluded = new Set(excludedRepos);
@@ -50,19 +48,19 @@ export const DashboardHeader = ({
       newExcluded.add(repo);
     }
     setExcludedRepos(newExcluded);
-    configService.setExcludedRepos([...newExcluded])
+    setConfig({ excludedRepos: [...newExcluded] });
     onFilterChange();
   };
 
   const clearAll = () => {
     setExcludedRepos(new Set());
-    configService.setExcludedRepos([])
+    setConfig({ excludedRepos: [] });
     onFilterChange();
   };
 
   const excludeAll = () => {
     setExcludedRepos(new Set(allRepositories));
-    configService.setExcludedRepos(allRepositories)
+    setConfig({ excludedRepos: allRepositories });
     onFilterChange();
   };
 
@@ -77,7 +75,7 @@ export const DashboardHeader = ({
           <div>
             <h1 className="text-3xl font-bold text-foreground">PR Dashboard</h1>
             <p className="text-muted-foreground mt-1">
-              {organization !== "" ? "Monitor pull requests across " + organization : "Monitor pull requests across your organization"}
+              {config.org ? "Monitor pull requests across " + config.org : "Monitor pull requests across your organization"}
             </p>
           </div>
 
